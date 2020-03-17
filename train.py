@@ -10,25 +10,39 @@ from tensorboardX import SummaryWriter
 import shutil
 import numpy as np
 from tqdm.autonotebook import tqdm
-
-
+from datetime import datetime
+os.environ['CUDA_VISIBLE_DEVICES']='3,4,5,6'
 def get_args():
     parser = argparse.ArgumentParser(
         "EfficientDet: Scalable and Efficient Object Detection implementation by Signatrix GmbH")
     parser.add_argument("--image_size", type=int, default=512, help="The common width and height for all images")
-    parser.add_argument("--batch_size", type=int, default=8, help="The number of images per batch")
+    parser.add_argument("--batch_size", type=int, default=3, help="The number of images per batch")
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument('--alpha', type=float, default=0.25)
     parser.add_argument('--gamma', type=float, default=1.5)
-    parser.add_argument("--num_epochs", type=int, default=500)
+    parser.add_argument("--num_epochs", type=int, default=200)
     parser.add_argument("--test_interval", type=int, default=1, help="Number of epoches between testing phases")
     parser.add_argument("--es_min_delta", type=float, default=0.0,
                         help="Early stopping's parameter: minimum change loss to qualify as an improvement")
     parser.add_argument("--es_patience", type=int, default=0,
                         help="Early stopping's parameter: number of epochs with no improvement after which training will be stopped. Set to 0 to disable this technique.")
-    parser.add_argument("--data_path", type=str, default="data/COCO", help="the root folder of dataset")
+    parser.add_argument("--data_path", type=str, default="data/coco", help="the root folder of dataset")
     parser.add_argument("--log_path", type=str, default="tensorboard/signatrix_efficientdet_coco")
     parser.add_argument("--saved_path", type=str, default="trained_models")
+
+    
+    parser.add_argument("--save_interval", type=int, default=1, help="Number of epoches between two operations for saving weights")
+    parser.add_argument('--backbone_network', default='efficientnet-b7', type=str,
+                    help='efficientdet-[b0, b1, ..]')
+    parser.add_argument('--remote_loading', default=False, type=bool,
+                    help='if this option is enabled, it will download and load the backbone weights from https://github.com/lukemelas/EfficientNet-PyTorch/releases,'+ \
+                          'otherwise,load the weights locally from ./pretrained_models')
+    parser.add_argument('--advprop', default=False, type=bool,
+                    help='if this option is enabled, the adv_efficientnet_b* backbone will be used instead of efficientnet_b*')
+    parser.add_argument('--resume', action='store_true',
+                    help='If resume training from the last model file saved by the last stopped training')
+    parser.add_argument('--start_epoch', default=0, type=int,
+                    help='The start_epoch where you restart training by resuming from a model generated recently')
 
     args = parser.parse_args()
     return args
@@ -61,8 +75,17 @@ def train(opt):
     test_set = CocoDataset(root_dir=opt.data_path, set="val2017",
                            transform=transforms.Compose([Normalizer(), Resizer()]))
     test_generator = DataLoader(test_set, **test_params)
-
-    model = EfficientDet(num_classes=training_set.num_classes())
+    
+    channels_map={
+       'efficientnet-b0': [40,80,192],
+       'efficientnet-b1': [40,80,192],
+       'efficientnet-b2': [48,88,208],
+       'efficientnet-b3': [48,96,232],
+       'efficientnet-b4': [56,112,272],
+       'efficientnet-b5': [64,128,304],
+       'efficientnet-b6': [72,144,344],
+       'efficientnet-b7': [80,160,384],
+    }
 
 
     if os.path.isdir(opt.log_path):
@@ -73,6 +96,15 @@ def train(opt):
         os.makedirs(opt.saved_path)
 
     writer = SummaryWriter(opt.log_path)
+
+    if opt.resume:
+        resume_path = os.path.join(opt.saved_path,'signatrix_efficientdet_coco_latest.pth')
+        model = torch.load(resume_path).module
+        print("model loaded from {}".format(resume_path))
+    else:
+        model = EfficientDet(num_classes=training_set.num_classes(),network=opt.backbone_network,remote_loading=opt.remote_loading,advprop=opt.advprop,conv_in_channels=channels_map[opt.backbone_network] )
+        print("model created with backbone {}, advprop {}".format(opt.backbone_network,opt.advprop))
+
     if torch.cuda.is_available():
         model = model.cuda()
         model = nn.DataParallel(model)
@@ -85,7 +117,11 @@ def train(opt):
     model.train()
 
     num_iter_per_epoch = len(training_generator)
-    for epoch in range(opt.num_epochs):
+    
+    start_epoch=0
+    if opt.resume:
+        start_epoch = opt.start_epoch
+    for epoch in range(start_epoch,opt.num_epochs):
         model.train()
         # if torch.cuda.is_available():
         #     model.module.freeze_bn()
@@ -113,8 +149,8 @@ def train(opt):
                 total_loss = np.mean(epoch_loss)
 
                 progress_bar.set_description(
-                    'Epoch: {}/{}. Iteration: {}/{}. Cls loss: {:.5f}. Reg loss: {:.5f}. Batch loss: {:.5f} Total loss: {:.5f}'.format(
-                        epoch + 1, opt.num_epochs, iter + 1, num_iter_per_epoch, cls_loss, reg_loss, loss,
+                    '{} Epoch: {}/{}. Iteration: {}/{}. Cls loss: {:.5f}. Reg loss: {:.5f}. Batch loss: {:.5f} Total loss: {:.5f}'.format(
+                        datetime.now(),epoch + 1, opt.num_epochs, iter + 1, num_iter_per_epoch, cls_loss, reg_loss, loss,
                         total_loss))
                 writer.add_scalar('Train/Total_loss', total_loss, epoch * num_iter_per_epoch + iter)
                 writer.add_scalar('Train/Regression_loss', reg_loss, epoch * num_iter_per_epoch + iter)
@@ -147,8 +183,8 @@ def train(opt):
             loss = cls_loss + reg_loss
 
             print(
-                'Epoch: {}/{}. Classification loss: {:1.5f}. Regression loss: {:1.5f}. Total loss: {:1.5f}'.format(
-                    epoch + 1, opt.num_epochs, cls_loss, reg_loss,
+                '{} Epoch: {}/{}. Classification loss: {:1.5f}. Regression loss: {:1.5f}. Total loss: {:1.5f}'.format(
+                   datetime.now(), epoch + 1, opt.num_epochs, cls_loss, reg_loss,
                     np.mean(loss)))
             writer.add_scalar('Test/Total_loss', loss, epoch)
             writer.add_scalar('Test/Regression_loss', reg_loss, epoch)
@@ -157,30 +193,35 @@ def train(opt):
             if loss + opt.es_min_delta < best_loss:
                 best_loss = loss
                 best_epoch = epoch
-                torch.save(model, os.path.join(opt.saved_path, "signatrix_efficientdet_coco.pth"))
-
+                torch.save(model, os.path.join(opt.saved_path, "signatrix_efficientdet_coco_best_epoch{}.pth".format(epoch)))
+                ''' 
                 dummy_input = torch.rand(opt.batch_size, 3, 512, 512)
                 if torch.cuda.is_available():
                     dummy_input = dummy_input.cuda()
                 if isinstance(model, nn.DataParallel):
                     model.module.backbone_net.model.set_swish(memory_efficient=False)
-
+                    
                     torch.onnx.export(model.module, dummy_input,
                                       os.path.join(opt.saved_path, "signatrix_efficientdet_coco.onnx"),
                                       verbose=False)
+                    
                     model.module.backbone_net.model.set_swish(memory_efficient=True)
                 else:
                     model.backbone_net.model.set_swish(memory_efficient=False)
-
+                    
                     torch.onnx.export(model, dummy_input,
                                       os.path.join(opt.saved_path, "signatrix_efficientdet_coco.onnx"),
                                       verbose=False)
+                    
                     model.backbone_net.model.set_swish(memory_efficient=True)
-
+                '''
+            print("epoch:",epoch,"best_epoch:",best_epoch,"epoch - best_epoch=", epoch - best_epoch)
             # Early stopping
             if epoch - best_epoch > opt.es_patience > 0:
                 print("Stop training at epoch {}. The lowest loss achieved is {}".format(epoch, loss))
                 break
+        if epoch % opt.save_interval ==0:
+            torch.save(model, os.path.join(opt.saved_path, "signatrix_efficientdet_coco_latest.pth"))
     writer.close()
 
 

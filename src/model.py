@@ -5,7 +5,7 @@ from efficientnet_pytorch import EfficientNet as EffNet
 from src.utils import BBoxTransform, ClipBoxes, Anchors
 from src.loss import FocalLoss
 from torchvision.ops.boxes import nms as nms_torch
-
+import os
 
 def nms(dets, thresh):
     return nms_torch(dets[:, :4], dets[:, 4], thresh)
@@ -173,16 +173,16 @@ class Classifier(nn.Module):
 
 
 class EfficientNet(nn.Module):
-    def __init__(self, ):
+    def __init__(self,network,remote_loading=False,advprop=False):
         super(EfficientNet, self).__init__()
-        model = EffNet.from_pretrained('efficientnet-b0')
+        model = EffNet.from_pretrained(network,remote_loading,advprop) 
         del model._conv_head
         del model._bn1
         del model._avg_pooling
         del model._dropout
         del model._fc
         self.model = model
-
+        
     def forward(self, x):
         x = self.model._swish(self.model._bn0(self.model._conv_stem(x)))
         feature_maps = []
@@ -198,22 +198,23 @@ class EfficientNet(nn.Module):
 
 
 class EfficientDet(nn.Module):
-    def __init__(self, num_anchors=9, num_classes=20, compound_coef=0):
+    def __init__(self,num_anchors=9, num_classes=20,network=None,remote_loading=False,advprop=False,conv_in_channels=[40,80,192], compound_coef=0):
         super(EfficientDet, self).__init__()
         self.compound_coef = compound_coef
 
         self.num_channels = [64, 88, 112, 160, 224, 288, 384, 384][self.compound_coef]
 
-        self.conv3 = nn.Conv2d(40, self.num_channels, kernel_size=1, stride=1, padding=0)
-        self.conv4 = nn.Conv2d(80, self.num_channels, kernel_size=1, stride=1, padding=0)
-        self.conv5 = nn.Conv2d(192, self.num_channels, kernel_size=1, stride=1, padding=0)
-        self.conv6 = nn.Conv2d(192, self.num_channels, kernel_size=3, stride=2, padding=1)
+        self.conv3 = nn.Conv2d(conv_in_channels[0], self.num_channels, kernel_size=1, stride=1, padding=0)
+        self.conv4 = nn.Conv2d(conv_in_channels[1], self.num_channels, kernel_size=1, stride=1, padding=0)
+        self.conv5 = nn.Conv2d(conv_in_channels[2], self.num_channels, kernel_size=1, stride=1, padding=0)
+        self.conv6 = nn.Conv2d(conv_in_channels[2], self.num_channels, kernel_size=3, stride=2, padding=1)
         self.conv7 = nn.Sequential(nn.ReLU(),
                                    nn.Conv2d(self.num_channels, self.num_channels, kernel_size=3, stride=2, padding=1))
 
         self.bifpn = nn.Sequential(*[BiFPN(self.num_channels) for _ in range(min(2 + self.compound_coef, 8))])
 
         self.num_classes = num_classes
+        print("[EfficientDet]num_classes:",num_classes)
         self.regressor = Regressor(in_channels=self.num_channels, num_anchors=num_anchors,
                                    num_layers=3 + self.compound_coef // 3)
         self.classifier = Classifier(in_channels=self.num_channels, num_anchors=num_anchors, num_classes=num_classes,
@@ -240,7 +241,8 @@ class EfficientDet(nn.Module):
         self.regressor.header.weight.data.fill_(0)
         self.regressor.header.bias.data.fill_(0)
 
-        self.backbone_net = EfficientNet()
+
+        self.backbone_net = EfficientNet(network,remote_loading,advprop)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -256,6 +258,9 @@ class EfficientDet(nn.Module):
             img_batch = inputs
 
         c3, c4, c5 = self.backbone_net(img_batch)
+        #print("c3.shape:",c3.shape)
+        #print("c4.shape:",c4.shape)
+        #print("c5.shape:",c5.shape)
         p3 = self.conv3(c3)
         p4 = self.conv4(c4)
         p5 = self.conv5(c5)
