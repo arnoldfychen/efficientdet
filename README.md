@@ -1,10 +1,10 @@
 # EfficientDet: Scalable and Efficient Object Detection
 
 ## Improvements
-   I had ever tried other version implementation of EfficientDet, results seemed very bad,(BTW,I'm sure my dataset is OK as training and testing were successfully done with
- different network, such as Faster-RCNN(ZF,VGG) and Cascade-RCNN (Resnet101,ResneXt101,HRnet) and CenterNet, and results were considerably good), that code implementation 
+   I had ever tried other version implementation of EfficientDet, results seemed very bad, ( BTW,I'm sure my dataset is OK as training and testing were successfully done with
+ different network, such as Faster-RCNN(ZF,VGG) and Cascade-RCNN (Resnet101,ResneXt101,HRnet) and CenterNet, and results were considerably good ), that code implementation 
 seems something wrong, and finally came across Signatrix's this code implementation, training and testing results are OK with my own dataset, but I think there are some flaws 
-that need to patched up, so, I forked Signatrix's project and had a try to revamp some code lines, I have done the following improvements in my this branch:
+that need to be patched up, so, I forked Signatrix's project and had a try to revamp some code lines, I have done the following improvements in my this branch:
 
   (1)As of now,the original version only works well with network efficientdet-d0 and efficientdet-d1, errors will happen with other level of Efficientdet, I add some changes to make
      d2-d7 also supported, now weights can be correctly loaded form Efficientnet b2-b7 pretrained model file for Efficientnet backbone, and training with Efficientdet d2-d7 works fine.
@@ -44,6 +44,7 @@ that need to patched up, so, I forked Signatrix's project and had a try to revam
       the efficientnet_pytorch package as prerequisite any more.  
 
     2)I made changes in src/dataset.py according to my coco dataset, its num_class is 1 and paths are:
+
   ```
     COCO
     ├── annotations
@@ -55,6 +56,15 @@ that need to patched up, so, I forked Signatrix's project and had a try to revam
   ```
    You need to change the code in dataset.py as per your dataset.
 
+##How to use
+
+   1) git clone https://github.com/arnoldfychen/efficientdet.git
+   2) Make changes in src/dataset.py according to your dataset format, if needed.
+   3) Set argument values and tune the super parameters in train.py as you want, especially, adjusting batch_size is necessary if your GPU memory size is not big enough.
+   4) Set GPU ids for CUDA_VISIBLE_DEVICES in train.py or just comment that statement and set it on command line accoding to how many GPUs you use.
+   5) Download the corresponding pretrained model file from https://github.com/lukemelas/EfficientNet-PyTorch/releases as per the backbone that you will use for trainning.
+   6) Install the required packages in requirement.txt: pip install -r requirements.txt
+   7) Execute command such as 'python train.py' to start your training.  
     
 
 # The following is the original README written by Signatrix GmbH
