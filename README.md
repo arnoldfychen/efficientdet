@@ -55,7 +55,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
   ```
    You need to change the code in dataset.py as per your dataset.
 
-##How to use
+## How to use
 
    1) git clone https://github.com/arnoldfychen/efficientdet.git
    2) Make changes in src/dataset.py according to your dataset format, if needed.
