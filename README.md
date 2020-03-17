@@ -16,7 +16,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
      loading mode,i.e., loading weights locally from ./pretrained_models, you should make the directory ./pretrained_models in advance under the root directory of source code, and  download
      the pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/ into it.
 
-  (3)Signatrix's code doesn't support resuming traing from a epoch where training stopped unexpectedly, this is of a little bitter if you have run the training for long time and stopped 
+  (3)Signatrix's code doesn't support resuming training from a epoch where training stopped unexpectedly, this is of a little bitter if you have run the training for long time and stopped 
      occasionally due to unexpected disturbing such as power cut, so,I added some statements to support resuming.    
 
 ## Usage 
@@ -40,11 +40,10 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
     
 ## Notes
 
-    1)I made changes with efficientnet_pytorch's model.py and utils.py to support loading weights locally, and integrate them here, so, you don't need to install
+  1)I made changes with efficientnet_pytorch's model.py and utils.py to support loading weights locally, and integrate them here, so, you don't need to install
       the efficientnet_pytorch package as prerequisite any more.  
 
-    2)I made changes in src/dataset.py according to my coco dataset, its num_class is 1 and paths are:
-
+  2)I made changes in src/dataset.py according to my coco dataset, its num_class is 1 and paths are:
   ```
     COCO
     ├── annotations
@@ -62,7 +61,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    2) Make changes in src/dataset.py according to your dataset format, if needed.
    3) Set argument values and tune the super parameters in train.py as you want, especially, adjusting batch_size is necessary if your GPU memory size is not big enough.
    4) Set GPU ids for CUDA_VISIBLE_DEVICES in train.py or just comment that statement and set it on command line accoding to how many GPUs you use.
-   5) Download the corresponding pretrained model file from https://github.com/lukemelas/EfficientNet-PyTorch/releases as per the backbone that you will use for trainning.
+   5) Download the corresponding pretrained model file from https://github.com/lukemelas/EfficientNet-PyTorch/releases as per the backbone that you will use for training.
    6) Install the required packages in requirement.txt: pip install -r requirements.txt
    7) Execute command such as 'python train.py' to start your training.  
     
