@@ -65,8 +65,10 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    6) Install the required packages in requirement.txt: pip install -r requirements.txt
    7) Execute command such as 'python train.py' to start your training.  
     
+For Chinese guide, please reference to my csdn blog.
+中文版指南请参考我的CSDN博文:
 
-# The following is the original README written by Signatrix GmbH
+# The following is the original README 
 ## Introduction
 
 Here is our pytorch implementation of the model described in the paper **EfficientDet: Scalable and Efficient Object Detection** [paper](https://arxiv.org/abs/1911.09070) (*Note*: We also provide pre-trained weights, which you could see at ./trained_models) 
