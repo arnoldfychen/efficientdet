@@ -16,11 +16,11 @@ def get_args():
     parser = argparse.ArgumentParser(
         "EfficientDet: Scalable and Efficient Object Detection implementation by Signatrix GmbH")
     parser.add_argument("--image_size", type=int, default=512, help="The common width and height for all images")
-    parser.add_argument("--batch_size", type=int, default=3, help="The number of images per batch")
+    parser.add_argument("--batch_size", type=int, default=32, help="The number of images per batch")
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument('--alpha', type=float, default=0.25)
     parser.add_argument('--gamma', type=float, default=1.5)
-    parser.add_argument("--num_epochs", type=int, default=200)
+    parser.add_argument("--num_epochs", type=int, default=500)
     parser.add_argument("--test_interval", type=int, default=1, help="Number of epoches between testing phases")
     parser.add_argument("--es_min_delta", type=float, default=0.0,
                         help="Early stopping's parameter: minimum change loss to qualify as an improvement")
@@ -31,9 +31,9 @@ def get_args():
     parser.add_argument("--saved_path", type=str, default="trained_models")
 
     
-    parser.add_argument("--save_interval", type=int, default=1, help="Number of epoches between two operations for saving weights")
+    parser.add_argument("--save_interval", type=int, default=10, help="Number of epoches between two operations for saving weights")
     parser.add_argument('--backbone_network', default='efficientnet-b7', type=str,
-                    help='efficientdet-[b0, b1, ..]')
+                    help='efficientnet-[b0, b1, ..]')
     parser.add_argument('--remote_loading', default=False, type=bool,
                     help='if this option is enabled, it will download and load the backbone weights from https://github.com/lukemelas/EfficientNet-PyTorch/releases,'+ \
                           'otherwise,load the weights locally from ./pretrained_models')
