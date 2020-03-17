@@ -19,7 +19,7 @@ that need to patched up, so, I forked Signatrix's project and had a try to revam
   (3)Signatrix's code doesn't support resuming traing from a epoch where training stopped unexpectedly, this is of a little bitter if you have run the training for long time and stopped 
      occasionally due to unexpected disturbing such as power cut, so,I added some statements to support resuming.    
 
-##Usage 
+## Usage 
 
    You can set arguments on the command line or in train.py, the new arguments added by me are the following ones:
       --save_interval     default=10,    the number of epoches between two operations for saving weights
@@ -38,9 +38,13 @@ that need to patched up, so, I forked Signatrix's project and had a try to revam
     2) python train.py --batch_size 3
     3) python train.py --save_interval 50 --backbone_network 'efficientnet-b7' --resume   --start_epoch 101 
     
-##Notes
-    I made changes in src/dataset.py according to my coco dataset, its num_class is 1 and paths are:
-    ```
+## Notes
+
+    1)I made changes with efficientnet_pytorch's model.py and utils.py to support loading weights locally, and integrate them here, so, you don't need to install
+      the efficientnet_pytorch package as prerequisite any more.  
+
+    2)I made changes in src/dataset.py according to my coco dataset, its num_class is 1 and paths are:
+  ```
     COCO
     ├── annotations
     │   ├── instances_train2017.json
@@ -48,12 +52,12 @@ that need to patched up, so, I forked Signatrix's project and had a try to revam
     │
     ├── train2017
     └── val2017
-    ```
+  ```
    You need to change the code in dataset.py as per your dataset.
 
     
 
-The following is the original README written by Signatrix GmbH
+# The following is the original README written by Signatrix GmbH
 ## Introduction
 
 Here is our pytorch implementation of the model described in the paper **EfficientDet: Scalable and Efficient Object Detection** [paper](https://arxiv.org/abs/1911.09070) (*Note*: We also provide pre-trained weights, which you could see at ./trained_models) 
