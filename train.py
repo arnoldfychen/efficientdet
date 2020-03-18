@@ -11,7 +11,7 @@ import shutil
 import numpy as np
 from tqdm.autonotebook import tqdm
 from datetime import datetime
-os.environ['CUDA_VISIBLE_DEVICES']='3,4,5,6'
+#os.environ['CUDA_VISIBLE_DEVICES']='3,4,5,6'
 def get_args():
     parser = argparse.ArgumentParser(
         "EfficientDet: Scalable and Efficient Object Detection implementation by Signatrix GmbH")
@@ -85,6 +85,7 @@ def train(opt):
        'efficientnet-b5': [64,128,304],
        'efficientnet-b6': [72,144,344],
        'efficientnet-b7': [80,160,384],
+       'efficientnet-b8': [80,160,384]
     }
 
 

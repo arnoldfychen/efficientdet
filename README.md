@@ -53,7 +53,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
     ├── train2017
     └── val2017
   ```
-   You need to change the code in dataset.py as per your dataset.
+   You need to change the code in dataset.py according to your dataset.
 
 ## How to use
 
@@ -64,9 +64,11 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    5) Download the corresponding pretrained model file from https://github.com/lukemelas/EfficientNet-PyTorch/releases as per the backbone that you will use for training.
    6) Install the required packages in requirement.txt: pip install -r requirements.txt
    7) Execute command such as 'python train.py' to start your training.  
+   
     
-For Chinese guide, please reference to my csdn blog.
-中文版指南请参考我的CSDN博文:
+   For Chinese guide, please reference to my csdn blog.
+   中文版指南请参考我的CSDN博文:
+   
 
 # The following is the original README 
 ## Introduction
