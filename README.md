@@ -6,14 +6,14 @@
 seems something wrong, and finally came across Signatrix's this code implementation, training and testing results are OK with my own dataset, but I think there are some flaws 
 that need to be patched up, so, I forked Signatrix's project and had a try to revamp some code lines, I have done the following improvements in my this branch:
 
-  (1)As of now,the original version only works well with network efficientdet-d0 and efficientdet-d1, errors will happen with other level of Efficientdet, I add some changes to make
-     d2-d7 also supported, now weights can be correctly loaded form Efficientnet b2-b7 pretrained model file for Efficientnet backbone, and training with Efficientdet d2-d7 works fine.
+  (1)As of now,the original version only works well with network efficientdet-d0 and efficientdet-d1, errors will happen with other level of Efficientdet, I added some changes to make
+     d2-d7 also supported, now weights can be correctly loaded form Efficientnet b2-b7(b0-b8 for adv-efficientnet) pretrained model file for Efficientnet backbone, and training with Efficientdet d2-d7(d8 works well for adv-eifficientdet) works fine.
 
   (2)The original code downloads the corresponding Efficientnet pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/, 
-     this is easy to maintain, but if you are in a bad network with poor network speed, you will suffer the slow direct downloading without speedup tool. We can download those
+     this is easy to maintain, but when you are in a bad network with very poor network speed, you will suffer from the slow direct downloading without speedup tool. We can download those
      pretrained model files in advance with speedup tools to local directory and load the corresponding weights locally, this will improve user experience very much, I add some
      code to support loading pretrained weights locally, you can set the loading mode with the command line argument --remote-loading = True or False, when using the default
-     loading mode,i.e., loading weights locally from ./pretrained_models, you should make the directory ./pretrained_models in advance under the root directory of source code, and  download
+     loading mode,i.e., loading weights locally from ./pretrained_models, you should make the directory ./pretrained_models in advance under the root directory of project, and  download
      the pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/ into it.
 
   (3)Signatrix's code doesn't support resuming training from a epoch where training stopped unexpectedly, this is of a little bitter if you have run the training for long time and stopped 
@@ -31,7 +31,8 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
       --start_epoch       default=0,     the start_epoch where you restart training by resuming from a model generated recently 
 
    I think a very important argument is batch_size you need to tune, the default value is 32, OOM error will often happen with many type of GPUs unless your GPU has very big memory,
-   I trained EfficientDet-d7 with 4 RTX 2080TI GPUs, whose memory is 11G per one, if I set batch_size greater than 3, Out-of-Memory error always occurred.
+   I trained EfficientDet-d7 with 4 RTX 2080TI GPUs, whose memory is 11G per one, if I set batch_size greater than 3, Out-of-Memory error always occurred,
+   I also got the OOM error with batch_size=3 when I was starting adv-efficientDet-d8, so, if you want to train with adv-efficient,batch_size might be bigger than expected, and needs to be reduced. 
     
     Comannd Examples:
     1) python train.py

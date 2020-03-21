@@ -110,6 +110,9 @@ def train(opt):
         model = model.cuda()
         model = nn.DataParallel(model)
 
+    if opt.resume:
+        m = round(opt.start_epoch/100)
+        opt.lr = opt.lr*(0.1**m)
     optimizer = torch.optim.Adam(model.parameters(), opt.lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
 
