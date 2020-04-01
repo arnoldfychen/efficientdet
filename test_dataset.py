@@ -6,16 +6,16 @@ from src.dataset import CocoDataset, Resizer, Normalizer
 from src.config import COCO_CLASSES, colors
 import cv2
 import shutil
-
+from datetime import datetime
 
 def get_args():
     parser = argparse.ArgumentParser(
         "EfficientDet: Scalable and Efficient Object Detection implementation by Signatrix GmbH")
     parser.add_argument("--image_size", type=int, default=512, help="The common width and height for all images")
-    parser.add_argument("--data_path", type=str, default="data/COCO", help="the root folder of dataset")
+    parser.add_argument("--data_path", type=str, default="data/coco", help="the root folder of dataset")
     parser.add_argument("--cls_threshold", type=float, default=0.5)
     parser.add_argument("--nms_threshold", type=float, default=0.5)
-    parser.add_argument("--pretrained_model", type=str, default="trained_models/signatrix_efficientdet_coco.pth")
+    parser.add_argument("--pretrained_model", type=str, default="trained_models/signatrix_efficientdet_coco_latest.pth")
     parser.add_argument("--output", type=str, default="predictions")
     args = parser.parse_args()
     return args
@@ -34,13 +34,19 @@ def test(opt):
     for index in range(len(dataset)):
         data = dataset[index]
         scale = data['scale']
+        image_info = dataset.coco.loadImgs(dataset.image_ids[index])[0]
         with torch.no_grad():
+            tb = datetime.now()
             scores, labels, boxes = model(data['img'].cuda().permute(2, 0, 1).float().unsqueeze(dim=0))
             boxes /= scale
+            te = datetime.now()
+            print(te,image_info['file_name']+ " cost "+str(te-tb))
 
         if boxes.shape[0] > 0:
-            image_info = dataset.coco.loadImgs(dataset.image_ids[index])[0]
-            path = os.path.join(dataset.root_dir, 'images', dataset.set_name, image_info['file_name'])
+            #image_info = dataset.coco.loadImgs(dataset.image_ids[index])[0]
+            #path = os.path.join(dataset.root_dir, 'images', dataset.set_name, image_info['file_name'])
+            path = os.path.join(dataset.root_dir,  dataset.set_name, image_info['file_name'])
+            print("read from ",path)
             output_image = cv2.imread(path)
 
             for box_id in range(boxes.shape[0]):
