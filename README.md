@@ -68,7 +68,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    
     
    For Chinese guide, please reference to my csdn blog.
-   中文版指南请参考我的CSDN博文:
+   中文版指南请参考我的CSDN博文:https://blog.csdn.net/XCCCCZ/article/details/105477376
    
 
 # The following is the original README 
