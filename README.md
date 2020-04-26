@@ -67,7 +67,7 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    7) Execute command such as 'python train.py' to start your training.  
    
     
-   For Chinese guide, please reference to my csdn blog.
+   For Chinese guide, please refer to my csdn blog.
    中文版指南请参考我的CSDN博文:https://blog.csdn.net/XCCCCZ/article/details/105477376
    
 
