@@ -1,6 +1,6 @@
 # EfficientDet: Scalable and Efficient Object Detection
 
-## Improvements
+## Improvement
    I had ever tried other version implementation of EfficientDet, results seemed very bad, ( BTW,I'm sure my dataset is OK as training and testing were successfully done with
  different network, such as Faster-RCNN(ZF,VGG) and Cascade-RCNN (Resnet101,ResneXt101,HRnet) and CenterNet, and results were considerably good ), that code implementation 
 seems something wrong, and finally came across Signatrix's this code implementation, training and testing results are OK with my own dataset, but I think there are some flaws 
