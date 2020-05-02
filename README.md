@@ -9,12 +9,12 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
   (1)As of now,the original version only works well with network efficientdet-d0 and efficientdet-d1, errors will happen with other level of Efficientdet, I added some changes to make
      d2-d7 also supported, now weights can be correctly loaded form Efficientnet b2-b7(b0-b8 for adv-efficientnet) pretrained model file for Efficientnet backbone, and training with Efficientdet d2-d7(d8 works well for adv-eifficientdet) works fine.
 
-  (2)The original code downloads the corresponding Efficientnet pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/, 
+  (2)The original code downloads the corresponding Efficientnet pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases, 
      this is easy to maintain, but when you are in a bad network with very poor network speed, you will suffer from the slow direct downloading without speedup tool. We can download those
      pretrained model files in advance with speedup tools to local directory and load the corresponding weights locally, this will improve user experience very much, I add some
      code to support loading pretrained weights locally, you can set the loading mode with the command line argument --remote-loading = True or False, when using the default
      loading mode,i.e., loading weights locally from ./pretrained_models, you should make the directory ./pretrained_models in advance under the root directory of project, and  download
-     the pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/ into it.
+     the pretrained model files from https://github.com/lukemelas/EfficientNet-PyTorch/releases into it.
 
   (3)Signatrix's code doesn't support resuming training from a epoch where training stopped unexpectedly, this is of a little bitter if you have run the training for long time and stopped 
      occasionally due to unexpected disturbing such as power cut, so,I added some statements to support resuming.    
