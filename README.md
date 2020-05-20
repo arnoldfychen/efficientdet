@@ -66,9 +66,6 @@ that need to be patched up, so, I forked Signatrix's project and had a try to re
    6) Install the required packages in requirement.txt: pip install -r requirements.txt
    7) Execute command such as 'python train.py' to start your training.  
    
-    
-   For Chinese guide, please refer to my csdn blog.
-   中文版指南请参考我的CSDN博文:https://blog.csdn.net/XCCCCZ/article/details/105477376
    
 
 # The following is the original README 
